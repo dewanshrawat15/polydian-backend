@@ -55,7 +55,7 @@ An API endpoint to authenticate a user, and return an auth token corresponding t
 ##### POST Request
 An API endpoint to update password for a user.
 
-#### ```/users/password/note```
+#### ```/note```
 
 ##### GET Request
 Fetch all notes corresponding to a user from the authorisation token specified in the headers.
@@ -63,7 +63,7 @@ Fetch all notes corresponding to a user from the authorisation token specified i
 ##### POST Request
 Create a new note corresponding to the user from the authorisation token specified in the headers.
 
-#### ```/users/password/delete```
+#### ```/note/delete```
 
 ##### POST Request
 Delete note if authorised, corresponding to note ID.
