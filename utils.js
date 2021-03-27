@@ -265,6 +265,37 @@ const fetchNotes = async (authorisation, res) => {
     })
 }
 
+const deleteNote = async (authorisation, id, res) => {
+    AuthToken.findOne({ authToken: authorisation }, function(err, auth){
+        if(err){
+            res.status(400).json({
+                "message": err
+            });
+        }
+        if(auth === null){
+            res.status(400).json({
+                message: "Wrong authorisation code",
+                login: false
+            });
+        } else {
+            let queryParams = {
+                "_id": id
+            };
+            Note.findOneAndDelete(queryParams, function(err, data){
+                if(err){
+                    res.status(400).json({
+                        "message": err
+                    });
+                } else {
+                    res.status(200).json({
+                        "message": data
+                    });
+                }
+            });
+        }
+    })
+}
+
 exports.createNewUser = createNewUser;
 exports.getAllUsers = getUser;
 exports.checkIfUsernameExists = checkIfUsernameExists;
@@ -274,3 +305,4 @@ exports.updatePassword = updatePassword;
 exports.deleteAuthTokens = deleteAuthTokens;
 exports.createNewNote = createNewNote;
 exports.fetchNotes = fetchNotes;
+exports.deleteNote = deleteNote;

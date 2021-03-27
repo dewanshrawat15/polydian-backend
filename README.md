@@ -31,18 +31,28 @@ A server to generate new notes out of any website.
 ## API Endpoints
 
 #### ```/users/all```
+
+##### GET Request
 An API endpoint to fetch all users
 
 #### ```/users/create```
+
+##### POST Request
 An API endpoint that creates a new entry in the users table and an entry in the auth token table for the user.
 
 #### ```/users/delete/all```
+
+##### GET Request
 An API endpoint that deletes all users and auth tokens from the users table and the auth token tables.
 
 #### ```/users/login```
+
+##### POST Request
 An API endpoint to authenticate a user, and return an auth token corresponding to the user.
 
 #### ```/users/password/update```
+
+##### POST Request
 An API endpoint to update password for a user.
 
 #### ```/users/password/note```
@@ -52,3 +62,8 @@ Fetch all notes corresponding to a user from the authorisation token specified i
 
 ##### POST Request
 Create a new note corresponding to the user from the authorisation token specified in the headers.
+
+#### ```/users/password/delete```
+
+##### POST Request
+Delete note if authorised, corresponding to note ID.

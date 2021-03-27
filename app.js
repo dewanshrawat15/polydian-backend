@@ -64,7 +64,7 @@ app.post("/note", async (req, res) => {
       "message": "User not authenticated"
     });
   }
-})
+});
 
 app.get("/note", async (req, res) => {
   let authorization = req.headers.authorization;
@@ -75,6 +75,18 @@ app.get("/note", async (req, res) => {
       "message": "User not authenticated"
     });
   }
-})
+});
+
+app.post("/note/delete", async (req, res) => {
+  let authorization = req.headers.authorization;
+  const bodyData = req.body;
+  if(authorization){
+    await utils.deleteNote(authorization, bodyData.id, res);
+  } else {
+    res.status(403).json({
+      "message": "User not authenticated"
+    });
+  }
+});
 
 module.exports = app;
