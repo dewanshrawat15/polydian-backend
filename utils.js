@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
 mongoose.connect(
@@ -22,15 +23,21 @@ let UserSchema = new Schema({
     hash: {type: String, required: true},
     salt: {type: String, required: true}
 });
-  
+
+let AuthTokens = new Schema({
+    authToken: {type: String, required: true},
+    username: {type: String, required: true}
+});
+
 let User = mongoose.model("User", UserSchema);
+let AuthToken = mongoose.model("Auth Token", AuthTokens);
 
 const validatePassword = (password, salt, userHash) => {
     let hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
     return userHash === hash;
 }
 
-const createNewUser = (userData) => {
+const createNewUser = (userData, res) => {
     let username = userData.username;
     let firstName = userData.firstName;
     let lastName = userData.lastName;
@@ -47,8 +54,28 @@ const createNewUser = (userData) => {
     });
 
     newUser.save(function(err, data){
-       if (err){
-        console.error(err);
+        if (err){
+            res.json({
+                "message": err
+            });
+        }
+       else{
+            let authToken = jwt.sign(username, process.env.TOKEN_SECRET);
+            let newAuthToken = new AuthToken({
+                username: username,
+                authToken: authToken
+            });
+            newAuthToken.save(function(err, data){
+                if(err){
+                    res.json({
+                        "message": err
+                    });
+                } else {
+                    res.json({
+                        "message": "New user created"
+                    });
+                }
+            });
        }
     });
 }
@@ -67,10 +94,22 @@ const loginUser = (username, password, res) => {
         else{
             const validateUser = validatePassword(password, user.salt, user.hash);
             if(validateUser){
-                res.status(201).json({
-                    message: "User logged in",
-                    login: true
-                });
+                AuthToken.findOne({ username: username }, function(err, authToken){
+                    if(err){
+                        console.error(err);
+                    }
+                    if(authToken === null){
+                        res.status(400).json({
+                            "message": "An internal error occured."
+                        })
+                    }
+                    else{
+                        res.status(201).json({
+                            message: "User login successful",
+                            authToken: authToken.authToken
+                        });
+                    }
+                })
             }
             else{
                 res.status(400).json({
