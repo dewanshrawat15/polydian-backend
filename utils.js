@@ -24,13 +24,21 @@ let UserSchema = new Schema({
     salt: {type: String, required: true}
 });
 
-let AuthTokens = new Schema({
+let AuthTokenSchema = new Schema({
     authToken: {type: String, required: true},
     username: {type: String, required: true}
 });
 
+let NoteSchema = new Schema({
+    url: {type: String, required: true},
+    date: {type: String, required: true},
+    time: {type: String, required: true},
+    authorisation: {type: String, required: true}
+});
+
 let User = mongoose.model("User", UserSchema);
-let AuthToken = mongoose.model("Auth Token", AuthTokens);
+let AuthToken = mongoose.model("Auth Token", AuthTokenSchema);
+let Note = mongoose.model("Note", NoteSchema);
 
 const validatePassword = (password, salt, userHash) => {
     let hash = crypto.pbkdf2Sync(password, salt, 1000, 64, 'sha512').toString('hex');
@@ -189,6 +197,34 @@ const deleteAuthTokens = async () => {
     await AuthToken.remove();
 }
 
+const createNewNote = async (url, authToken, res) => {
+    let newDate = new Date();
+    let date = newDate.getDate().toString();
+    let month = (newDate.getMonth() + 1).toString();
+    let year = newDate.getFullYear().toString();
+    let hour = newDate.getHours().toString();
+    let minutes = newDate.getMinutes().toString();
+    let currDate = date + "/" + month + "/" + year;
+    let currTime = hour + ":" + minutes;
+    let newNote = Note({
+        url: url,
+        date: currDate,
+        time: currTime,
+        authorisation: authToken
+    });
+    newNote.save(function(err, data){
+        if(err){
+            res.json({
+                "message": err
+            })
+        } else{
+            res.json({
+                "message": "New note created"
+            })
+        }
+    })
+}
+
 exports.createNewUser = createNewUser;
 exports.getAllUsers = getUser;
 exports.checkIfUsernameExists = checkIfUsernameExists;
@@ -196,3 +232,4 @@ exports.deleteRecords = deleteAllRecords;
 exports.loginUser = loginUser;
 exports.updatePassword = updatePassword;
 exports.deleteAuthTokens = deleteAuthTokens;
+exports.createNewNote = createNewNote;

@@ -54,4 +54,16 @@ app.post("/users/password/update", async (req, res) => {
   utils.updatePassword(bodyData.username, bodyData.password, bodyData.newPassword, res);
 });
 
+app.get("/note", (req, res) => {
+  res.json({
+    "message": "API endpoint dealing with creating notes from a website URL"
+  });
+});
+
+app.post("/note", (req, res) => {
+  let authorization = req.headers.authorization;
+  const bodyData = req.body;
+  utils.createNewNote(bodyData.url, authorization, res);
+})
+
 module.exports = app;
