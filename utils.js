@@ -185,9 +185,14 @@ const deleteAllRecords = async () => {
     await User.remove();
 }
 
+const deleteAuthTokens = async () => {
+    await AuthToken.remove();
+}
+
 exports.createNewUser = createNewUser;
 exports.getAllUsers = getUser;
 exports.checkIfUsernameExists = checkIfUsernameExists;
 exports.deleteRecords = deleteAllRecords;
 exports.loginUser = loginUser;
 exports.updatePassword = updatePassword;
+exports.deleteAuthTokens = deleteAuthTokens;

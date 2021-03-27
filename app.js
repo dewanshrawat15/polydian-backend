@@ -38,6 +38,7 @@ app.post("/users/create", async (req, res) => {
 
 app.get("/users/delete/all", async (req, res) => {
   await utils.deleteRecords();
+  await utils.deleteAuthTokens();
   res.json({
     "message": "All records deleted"
   });
