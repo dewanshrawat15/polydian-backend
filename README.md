@@ -1,6 +1,17 @@
 # Polydian Backend
 A server to generate new notes out of any website.
 
+## Setting up
+
+### Installing and setting up MongoDB
+- Install MongoDB Community edition
+- Start mongodb as a service
+- Install MongoDB Compass
+
+### Installing project dependencies
+- Run ```yarn``` or ```npm install```
+- Run ```yarn start``` or ```npm run start``` to run this project.
+
 ## Database schema
 
 - User table schema
