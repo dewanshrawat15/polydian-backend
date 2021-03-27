@@ -54,16 +54,27 @@ app.post("/users/password/update", async (req, res) => {
   utils.updatePassword(bodyData.username, bodyData.password, bodyData.newPassword, res);
 });
 
-app.get("/note", (req, res) => {
-  res.json({
-    "message": "API endpoint dealing with creating notes from a website URL"
-  });
-});
-
-app.post("/note", (req, res) => {
+app.post("/note", async (req, res) => {
   let authorization = req.headers.authorization;
-  const bodyData = req.body;
-  utils.createNewNote(bodyData.url, authorization, res);
+  if(authorization){
+    const bodyData = req.body;
+    await utils.createNewNote(bodyData.url, authorization, res);
+  } else {
+    res.status(403).json({
+      "message": "User not authenticated"
+    });
+  }
+})
+
+app.get("/note", async (req, res) => {
+  let authorization = req.headers.authorization;
+  if(authorization){
+    await utils.fetchNotes(authorization, res);
+  } else {
+    res.status(403).json({
+      "message": "User not authenticated"
+    });
+  }
 })
 
 module.exports = app;

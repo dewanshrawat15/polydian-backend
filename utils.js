@@ -3,6 +3,8 @@ const Schema = mongoose.Schema;
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
+const JSSoup = require('jssoup').default;
+const fetch = require('node-fetch');
 
 mongoose.connect(
     process.env.MONGO_URI,
@@ -33,6 +35,7 @@ let NoteSchema = new Schema({
     url: {type: String, required: true},
     date: {type: String, required: true},
     time: {type: String, required: true},
+    text: {type: String, required: true},
     authorisation: {type: String, required: true}
 });
 
@@ -197,7 +200,7 @@ const deleteAuthTokens = async () => {
     await AuthToken.remove();
 }
 
-const createNewNote = async (url, authToken, res) => {
+const createNewNote = async (url, authToken, resp) => {
     let newDate = new Date();
     let date = newDate.getDate().toString();
     let month = (newDate.getMonth() + 1).toString();
@@ -206,20 +209,57 @@ const createNewNote = async (url, authToken, res) => {
     let minutes = newDate.getMinutes().toString();
     let currDate = date + "/" + month + "/" + year;
     let currTime = hour + ":" + minutes;
+    let bodyElemText;
+    await fetch(url)
+    .then(res => res.text())
+    .then(text => {
+        let soup = new JSSoup(text);
+        let bodyElem = soup.find('body');
+        bodyElemText = bodyElem.text;
+    });
     let newNote = Note({
         url: url,
         date: currDate,
         time: currTime,
-        authorisation: authToken
+        authorisation: authToken,
+        text: bodyElemText
     });
     newNote.save(function(err, data){
         if(err){
-            res.json({
+            resp.status(400).json({
                 "message": err
-            })
+            });
         } else{
-            res.json({
+            resp.status(201).json({
                 "message": "New note created"
+            });
+        }
+    });
+}
+
+const fetchNotes = async (authorisation, res) => {
+    AuthToken.findOne({ authToken: authorisation }, function(err, auth){
+        if(err){
+            res.status(400).json({
+                "message": err
+            });
+        }
+        if(auth === null){
+            res.status(400).json({
+                message: "Wrong authorisation code",
+                login: false
+            });
+        } else{
+            Note.find({ authorisation: authorisation }, function(err, data){
+                if(err){
+                    res.status(400).json({
+                        "message": err
+                    });
+                } else {
+                    res.status(200).json({
+                        "message": data
+                    });
+                }
             })
         }
     })
@@ -233,3 +273,4 @@ exports.loginUser = loginUser;
 exports.updatePassword = updatePassword;
 exports.deleteAuthTokens = deleteAuthTokens;
 exports.createNewNote = createNewNote;
+exports.fetchNotes = fetchNotes;

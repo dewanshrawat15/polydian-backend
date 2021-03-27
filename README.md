@@ -45,3 +45,10 @@ An API endpoint to authenticate a user, and return an auth token corresponding t
 #### ```/users/password/update```
 An API endpoint to update password for a user.
 
+#### ```/users/password/note```
+
+##### GET Request
+Fetch all notes corresponding to a user from the authorisation token specified in the headers.
+
+##### POST Request
+Create a new note corresponding to the user from the authorisation token specified in the headers.
