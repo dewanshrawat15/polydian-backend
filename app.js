@@ -1,11 +1,19 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const utils = require("./utils");
+const cors = require("cors");
 
 let app = express();
 
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+app.use(function middleware(req, res, next){
+  var string = req.method + " " + req.path + " - " + req.ip;
+  console.log(string);
+  next();
+});
 
 app.get("/", (req, res) => {
   res.send("Welcome to Polydian, your personal note keeping service");
