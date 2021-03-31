@@ -13,9 +13,9 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "jsonwebtoken": "^8.5.1",
-    "jssoup": "^0.0.12",
     "mongodb": "^3.6.5",
     "mongoose": "^5.12.2",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "url-summarizer": "^4.7.0"
   }
 }

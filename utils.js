@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
-const JSSoup = require('jssoup').default;
 const fetch = require('node-fetch');
+const summarizer = require('url-summarizer')
 
 mongoose.connect(
     process.env.MONGO_URI,
@@ -36,7 +36,9 @@ let NoteSchema = new Schema({
     date: {type: String, required: true},
     time: {type: String, required: true},
     text: {type: String, required: true},
-    authorisation: {type: String, required: true}
+    authorisation: {type: String, required: true},
+    summary: {type: String, required: true},
+    title: {type: String, required: true}
 });
 
 let User = mongoose.model("User", UserSchema);
@@ -209,32 +211,34 @@ const createNewNote = async (url, authToken, resp) => {
     let minutes = newDate.getMinutes().toString();
     let currDate = date + "/" + month + "/" + year;
     let currTime = hour + ":" + minutes;
-    let bodyElemText;
-    await fetch(url)
-    .then(res => res.text())
-    .then(text => {
-        let soup = new JSSoup(text);
-        let bodyElem = soup.find('body');
-        bodyElemText = bodyElem.text;
-    });
-    let newNote = Note({
-        url: url,
-        date: currDate,
-        time: currTime,
-        authorisation: authToken,
-        text: bodyElemText
-    });
-    newNote.save(function(err, data){
-        if(err){
-            resp.status(400).json({
-                "message": err
-            });
-        } else{
-            resp.status(201).json({
-                "message": "New note created"
-            });
-        }
-    });
+
+    summarizer(url).then((data) => {
+        let newNote = Note({
+            url: url,
+            date: currDate,
+            time: currTime,
+            authorisation: authToken,
+            text: data.text,
+            title: data.title,
+            summary: data.summary
+        });
+        newNote.save(function(err, noteData){
+            if(err){
+                resp.status(400).json({
+                    "message": err
+                });
+            } else{
+                resp.status(201).json({
+                    "message": "New note created",
+                    "data": noteData
+                });
+            }
+        });
+    }).catch(err => {
+        resp.status(400).json({
+            "data": err
+        })
+    })
 }
 
 const fetchNotes = async (authorisation, res) => {
