@@ -4,7 +4,8 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const fetch = require('node-fetch');
-const summarizer = require('url-summarizer')
+const summarizer = require('url-summarizer');
+const fs = require('fs');
 
 mongoose.connect(
     process.env.MONGO_URI,
@@ -300,6 +301,45 @@ const deleteNote = async (authorisation, id, res) => {
     })
 }
 
+const exportNote = async (auth, id, res) => {
+    AuthToken.findOne({ authToken: auth }, function(err, auth){
+        if(err){
+            res.status(400).json({
+                "message": err
+            });
+        }
+        if(auth === null){
+            res.status(400).json({
+                message: "Wrong authorisation code",
+                login: false
+            });
+        } else {
+            let queryParams = {
+                "_id": id
+            };
+            Note.findOne(queryParams, function(err, data){
+                if(err){
+                    res.status(400).json({
+                        "message": err
+                    });
+                } else {
+                    const fileName = id + ".txt";
+                    fs.writeFile(fileName, data.text, function(err){
+                        if(err){
+                            res.status(400).json({
+                                "Error": err
+                            });
+                        } else {
+                            const file = `${__dirname}` + fileName;
+                            res.download(file);
+                        }
+                    });
+                }
+            })
+        }
+    })
+}
+
 exports.createNewUser = createNewUser;
 exports.getAllUsers = getUser;
 exports.checkIfUsernameExists = checkIfUsernameExists;
@@ -310,3 +350,4 @@ exports.deleteAuthTokens = deleteAuthTokens;
 exports.createNewNote = createNewNote;
 exports.fetchNotes = fetchNotes;
 exports.deleteNote = deleteNote;
+exports.exportNote = exportNote;

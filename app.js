@@ -97,4 +97,10 @@ app.post("/note/delete", async (req, res) => {
   }
 });
 
+app.get("/note/export/:id", async (req, res) => {
+  let authorization = req.headers.authorization;
+  let noteId = req.params.id;
+  utils.exportNote(authorization, noteId, res);
+});
+
 module.exports = app;
